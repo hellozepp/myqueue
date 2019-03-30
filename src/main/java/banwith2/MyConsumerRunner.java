@@ -21,8 +21,8 @@ public class MyConsumerRunner implements Runnable {
 
     private final MqConfig config;
     private static final int DEFAULT_RECEIVE_BUF_SIZE = 8192;
-    private static final int DEFAULT_PORT = 9977;
-    private static final int DEFAULT_TIMEOUT_MS = 1000 * 60;
+    private static final int DEFAULT_PORT = 9976;
+    private static final int DEFAULT_TIMEOUT_MS = 1000 * 60 * 60;
 
     public void receive() {
         Socket socket = null;
@@ -40,7 +40,7 @@ public class MyConsumerRunner implements Runnable {
             printStream.println(MqConfig.CONSUMER_ROLE_FLAG + "," + config.getTopic());
             printStream.flush();
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            if ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 System.out.println("line size:" + line.length());
             }
             System.out.println("MyConsumerRunner send msg success!");

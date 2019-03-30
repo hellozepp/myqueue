@@ -26,7 +26,7 @@ public class MyMessageQueueServer implements Runnable {
     private static final String DEFAULT_LOCAL_IP = "127.0.0.1";
 
     private void testReceiver() throws Exception {
-        System.out.println("[MyMessageQueueServer] MyMessageQueueServer is running...");
+        System.out.println("[MyMessageQueueServer] testReceiver is running...");
         Socket s;
 //        BufferedReader dl = null;
         TpsLimiterFilter dl;
@@ -65,10 +65,9 @@ public class MyMessageQueueServer implements Runnable {
                         strings.put(data);
                         map.put(topic, strings);
                     }
-                    System.out.println(data);
                     if ((timeCost = (System.nanoTime() - a) / 1000000000) >= second) {
                         second += 10;
-                        System.out.println(new Date() + ",role flag:" + flag + ", receive data size is " + (dataLength += data.length()) + ", time cost:" + timeCost + "s");
+                        System.out.println(new Date() + ",role flag:" + flag + ", receive data length is " + (dataLength += data.length()) + ", time cost:" + timeCost + "s");
                     }
                 }
                 System.out.println("[MyMessageQueueServer] end ! " + (System.nanoTime() - a) / 1000000000 + "s");
@@ -85,7 +84,7 @@ public class MyMessageQueueServer implements Runnable {
     }
 
     private void testTake() {
-        System.out.println("[MyMessageQueueServer] start consume func...");
+        System.out.println("[MyMessageQueueServer] testTake is running...");
         Socket s = null;
         PrintStream printStream = null;
         BufferedReader dl;
@@ -94,7 +93,6 @@ public class MyMessageQueueServer implements Runnable {
             ServerSocket ss = new ServerSocket();
             ss.setReceiveBufferSize(DEFAULT_RECEIVE_BUF_SIZE);
             ss.bind(new InetSocketAddress(DEFAULT_LOCAL_IP, DEFAULT_LOCAL_CONSUME_PORT));
-            long a = System.nanoTime();
             s = ss.accept();
             System.out.println("[MyMessageQueueServer] start accept data in port:" + s.getPort() + "!");
             dl = new BufferedReader(new InputStreamReader(s.getInputStream()));
@@ -104,15 +102,15 @@ public class MyMessageQueueServer implements Runnable {
             } else {
                 //TODO there need use observer
                 while (true) {
-
                     String[] split = data.split(",");
                     topic = split[1];
                     printStream = new PrintStream(s.getOutputStream());
                     //this take process is blocking
                     if (map.get(topic) != null) {
-                        printStream.print(map.get(topic).take());
+                        String take = map.get(topic).take();
+                        printStream.println(take);
                         printStream.flush();
-                        System.out.println("[MyMessageQueueServer] end ! " + (System.nanoTime() - a) / 1000000000 + "s");
+                        continue;
                     }
                     Thread.sleep(500);
 

@@ -17,7 +17,7 @@ public class MqDemo {
         FileReader fileReader = null;
         BufferedReader br = null;
         try {
-            fileReader = new FileReader(new File("/Users/docker/Documents/testPack/NewFile.txt"));
+            fileReader = new FileReader(new File("/Users/docker/Documents/testPack/hello.zepp.mrdemo-1.0-SNAPSHOT-jar-with-dependencies.jar"));
 
             br = new BufferedReader(fileReader);
             MyProducerRunner myProducerRunner = new MyProducerRunner(config, br);

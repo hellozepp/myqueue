@@ -20,12 +20,12 @@ public class SlidingWindow {
     /**
      * How many bytes will be sent or receive
      */
-    private int bytesWillBeSentOrReceive = 0;
+    private int ACK_BYTES = 0;
 
     /**
      * When the last piece was sent or receive
      */
-    private long lastPieceSentOrReceiveTick = System.nanoTime();
+    private long RECENT_FINISH_TIME = System.nanoTime();
 
     /**
      * Default rate is 1024KB/s
@@ -35,8 +35,7 @@ public class SlidingWindow {
     /**
      * Time cost for sending WINDOW_LENGTH bytes in nanoseconds
      */
-    private long timeCostPerChunk = (1000000000L * WINDOW_LENGTH)
-            / (this.maxRate * KB);
+    private long timeCostPerChunk = (1000000000L * WINDOW_LENGTH) / (this.maxRate * KB);
 
     public SlidingWindow(int maxRate) {
         this.setMaxRate(maxRate);
@@ -56,24 +55,16 @@ public class SlidingWindow {
     }
 
     /**
-     * Next 1 byte should do bandwidth limit.
-     */
-    public synchronized void limitNextBytes() {
-        this.limitNextBytes(1);
-    }
-
-    /**
      * Next len bytes should do bandwidth limit
      *
      * @param len
      */
     public synchronized void limitNextBytes(int len) {
-        this.bytesWillBeSentOrReceive += len;
+        this.ACK_BYTES += len;
 
-        while (this.bytesWillBeSentOrReceive > WINDOW_LENGTH) {
+        while (this.ACK_BYTES > WINDOW_LENGTH) {
             long nowTick = System.nanoTime();
-            long missedTime = this.timeCostPerChunk
-                    - (nowTick - this.lastPieceSentOrReceiveTick);
+            long missedTime = this.timeCostPerChunk - (nowTick - this.RECENT_FINISH_TIME);
             if (missedTime > 0) {
                 try {
                     Thread.sleep(missedTime / 1000000, (int) (missedTime % 1000000));
@@ -81,9 +72,8 @@ public class SlidingWindow {
                     e.printStackTrace();
                 }
             }
-            this.bytesWillBeSentOrReceive -= WINDOW_LENGTH;
-            this.lastPieceSentOrReceiveTick = nowTick
-                    + (missedTime > 0 ? missedTime : 0);
+            this.ACK_BYTES -= WINDOW_LENGTH;
+            this.RECENT_FINISH_TIME = nowTick + (missedTime > 0 ? missedTime : 0);
         }
     }
 }

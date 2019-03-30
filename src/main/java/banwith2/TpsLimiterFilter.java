@@ -13,19 +13,6 @@ public class TpsLimiterFilter extends BufferedReader {
     private BufferedReader is = null;
     private SlidingWindow slidingWindow = null;
 
-    /**
-     * @Override public int read() throws IOException {
-     * if (this.slidingWindow != null) {
-     * this.slidingWindow.limitNextBytes();
-     * }
-     * return this.is.read();
-     * }
-     * public int read(byte b[], int off, int len) throws IOException {
-     * if (slidingWindow != null)
-     * slidingWindow.limitNextBytes(len);
-     * return this.is.read(b, off, len);
-     * }
-     */
     @Override
     public String readLine() throws IOException {
         String s = is.readLine();
@@ -42,3 +29,16 @@ public class TpsLimiterFilter extends BufferedReader {
     }
 
 }
+ /**
+     * @Override public int read() throws IOException {
+     * if (this.slidingWindow != null) {
+     * this.slidingWindow.limitNextBytes();
+     * }
+     * return this.is.read();
+     * }
+     * public int read(byte b[], int off, int len) throws IOException {
+     * if (slidingWindow != null)
+     * slidingWindow.limitNextBytes(len);
+     * return this.is.read(b, off, len);
+     * }
+     */
