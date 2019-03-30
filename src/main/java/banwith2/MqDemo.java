@@ -1,8 +1,6 @@
 package banwith2;
 
 import java.io.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @Author: zhanglin
@@ -15,6 +13,7 @@ import java.util.concurrent.Executors;
 public class MqDemo {
     public static void main(String[] args) {
         MqConfig config = new MqConfig("topic01", "127.0.0.1", 30000);
+        MqConfig config1 = new MqConfig("topic01", "127.0.0.1", 30003);
         FileReader fileReader = null;
         BufferedReader br = null;
         try {
@@ -22,15 +21,15 @@ public class MqDemo {
 
             br = new BufferedReader(fileReader);
             MyProducerRunner myProducerRunner = new MyProducerRunner(config, br);
-            MyConsumerRunner myConsumerRunner = new MyConsumerRunner(config);
+            MyConsumerRunner myConsumerRunner = new MyConsumerRunner(config1);
             Thread thread = new Thread(myProducerRunner);
             Thread thread1 = new Thread(myConsumerRunner);
             thread.start();
-//            thread1.start();
+            thread1.start();
 
             try {
                 thread.join();
-//                thread1.join();
+                thread1.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

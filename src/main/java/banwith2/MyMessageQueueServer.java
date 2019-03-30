@@ -1,5 +1,7 @@
 package banwith2;
 
+import org.junit.Test;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,6 +22,7 @@ public class MyMessageQueueServer implements Runnable {
     private static ConcurrentHashMap<String, LinkedBlockingQueue<String>> map = new ConcurrentHashMap<>();
     private static final int DEFAULT_RECEIVE_BUF_SIZE = 8192;
     private static final int DEFAULT_LOCAL_PORT = 30000;
+    private static final int DEFAULT_LOCAL_CONSUME_PORT = 30003;
     private static final String DEFAULT_LOCAL_IP = "127.0.0.1";
 
     private void testReceiver() throws Exception {
@@ -44,7 +47,7 @@ public class MyMessageQueueServer implements Runnable {
                 long timeCost, dataLength = 0, lineCount = 0;
                 long a = System.nanoTime();
                 while ((data = dl.readLine()) != null) {
-                    if (lineCount == 0l) {
+                    if (lineCount == 0L) {
                         lineCount++;
                         if (data.length() == 0 || data.split(",").length < 2) {
                             System.out.println("[MyMessageQueueServer] seq head error!");
@@ -53,9 +56,6 @@ public class MyMessageQueueServer implements Runnable {
                         String[] split = data.split(",");
                         flag = split[0];
                         topic = split[1];
-                        if (MqConfig.CONSUMER_ROLE_FLAG.toString().equals(flag)) {
-                            take(topic, s);
-                        }
                         continue;
                     }
                     if (map.get(topic) != null) {
@@ -84,24 +84,55 @@ public class MyMessageQueueServer implements Runnable {
         }
     }
 
-    private static void take(String topic, Socket s) {
-        new Thread(() -> {
-            try {
-                PrintStream printStream = new PrintStream(s.getOutputStream());
+    private void testTake() {
+        System.out.println("[MyMessageQueueServer] start consume func...");
+        Socket s = null;
+        PrintStream printStream = null;
+        BufferedReader dl;
+        String topic;
+        try {
+            ServerSocket ss = new ServerSocket();
+            ss.setReceiveBufferSize(DEFAULT_RECEIVE_BUF_SIZE);
+            ss.bind(new InetSocketAddress(DEFAULT_LOCAL_IP, DEFAULT_LOCAL_CONSUME_PORT));
+            long a = System.nanoTime();
+            s = ss.accept();
+            System.out.println("[MyMessageQueueServer] start accept data in port:" + s.getPort() + "!");
+            dl = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            String data = dl.readLine();
+            if (data.length() == 0 || data.split(",").length < 2) {
+                System.out.println("[MyMessageQueueServer] seq head error!");
+            } else {
                 //TODO there need use observer
                 while (true) {
-                    //this take process is blocking
-                    printStream.print(map.get(topic).take());
-                    printStream.flush();
-                }
-            } catch (IOException e) {
-                System.out.println("[MyMessageQueueServer] close IO exception!");
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
 
+                    String[] split = data.split(",");
+                    topic = split[1];
+                    printStream = new PrintStream(s.getOutputStream());
+                    //this take process is blocking
+                    if (map.get(topic) != null) {
+                        printStream.print(map.get(topic).take());
+                        printStream.flush();
+                        System.out.println("[MyMessageQueueServer] end ! " + (System.nanoTime() - a) / 1000000000 + "s");
+                    }
+                    Thread.sleep(500);
+
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (printStream != null) {
+                printStream.close();
+            }
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
@@ -117,7 +148,9 @@ public class MyMessageQueueServer implements Runnable {
 
     }
 
-    public static void main(String[] args) {
-        new MyMessageQueueServer().run();
+    @Test
+    public void call() {
+        new Thread(this).start();
+        new MyMessageQueueServer().testTake();
     }
 }
