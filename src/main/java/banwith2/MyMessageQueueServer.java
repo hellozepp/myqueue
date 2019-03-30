@@ -150,7 +150,20 @@ public class MyMessageQueueServer implements Runnable {
 
     @Test
     public void call() {
-        new Thread(this).start();
-        new MyMessageQueueServer().testTake();
+        Thread thread = new Thread(this);
+        thread.start();
+        try {
+            new MyMessageQueueServer().testTake();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
     }
 }
