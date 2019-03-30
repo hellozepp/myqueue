@@ -1,7 +1,7 @@
 //package tpslimiter;
 //
-//import banwith.BandwidthLimiter;
-//import banwith.DownloadLimiter;
+//import banwith.SlidingWindow;
+//import banwith.TpsLimiterFilter;
 //
 //import java.io.*;
 //import java.net.InetSocketAddress;
@@ -29,7 +29,7 @@
 //            while (true) {
 //                System.out.println("++++++++++");
 //                s = ss.accept();
-//                DownloadLimiter dl = new DownloadLimiter(s.getInputStream(), new BandwidthLimiter(1024));
+//                TpsLimiterFilter dl = new TpsLimiterFilter(s.getInputStream(), new SlidingWindow(1024));
 //                DataInputStream is = new DataInputStream(dl);
 //                int len = is.readInt();
 //                ByteBuffer buffer = ByteBuffer.allocate(4 + len);
