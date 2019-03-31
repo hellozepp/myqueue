@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
+import java.util.Date;
 
 /**
  * @Author: zhanglin
@@ -21,7 +21,7 @@ public class MyConsumerRunner implements Runnable {
 
     private final MqConfig config;
     private static final int DEFAULT_RECEIVE_BUF_SIZE = 8192;
-    private static final int DEFAULT_PORT = 9976;
+    private static final int DEFAULT_PORT = 19976;
     private static final int DEFAULT_TIMEOUT_MS = 1000 * 60 * 60;
 
     public void receive() {
@@ -40,8 +40,11 @@ public class MyConsumerRunner implements Runnable {
             printStream.println(MqConfig.CONSUMER_ROLE_FLAG + "," + config.getTopic());
             printStream.flush();
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            int count = 1;
             while ((line = br.readLine()) != null) {
-                System.out.println("line size:" + line.length());
+                if (count++ % 10000 == 0) {
+                    System.out.println(new Date() + "MyConsumerRunner has been consume msg number:" + (count - 1));
+                }
             }
             System.out.println("MyConsumerRunner send msg success!");
         } catch (IOException e) {

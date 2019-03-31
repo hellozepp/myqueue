@@ -65,7 +65,7 @@ public class MyMessageQueueServer implements Runnable {
                     }
                     if ((timeCost = (System.nanoTime() - a) / 1000000000) >= second) {
                         second += 10;
-                        System.out.println(new Date() + ",role flag:" + flag + "," +
+                        System.out.println("[MyMessageQueueServer] " + new Date() + ",role flag:" + flag + "," +
                                 " receive data length is " + (dataLength += data.length())
                                 + ", time cost:" + timeCost + "s");
                     }
