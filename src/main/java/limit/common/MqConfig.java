@@ -1,4 +1,4 @@
-package limit.comon;
+package limit.common;
 
 /**
  * @Author: zhanglin
