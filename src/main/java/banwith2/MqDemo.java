@@ -8,7 +8,7 @@ import java.io.*;
  * @Time: 9:13 PM
  * * 数据报限流
  * * 创建队列，生产者生产数据放入队列，消费者消费数据读取队列。
- * * 并且对生产者进行限流，以获得1M/s的数据处理速率。java实现
+ * * 并且对生产者进行限流，以获得1M/s的数据处理速率。
  */
 public class MqDemo {
     public static void main(String[] args) {
