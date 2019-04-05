@@ -1,5 +1,10 @@
 package limit.common.sentinel;
 
+import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.EntryType;
+import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.context.ContextUtil;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.slots.block.RuleConstant;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
@@ -18,10 +23,6 @@ public class ControlRole {
         return KEY;
     }
 
-    public void setKEY(String KEY) {
-        this.KEY = KEY;
-    }
-
     public void initFlowControlRule(int bucketNum) {
         FlowRule rule = new FlowRule();
         rule.setResource(KEY);
@@ -32,5 +33,23 @@ public class ControlRole {
         rule.setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_RATE_LIMITER);
         rule.setMaxQueueingTimeMs(10 * 1000);
         FlowRuleManager.loadRules(Collections.singletonList(rule));
+    }
+
+    public static void doLimitSentinel(String name) {
+        Entry entry = null;
+        try {
+            ContextUtil.enter(name);
+            entry = SphU.entry(name, EntryType.OUT);
+
+            // Your business logic here.
+        } catch (BlockException ex) {
+            // Blocked.
+            System.out.printf("[%d] Blocked!\n", System.currentTimeMillis());
+        } finally {
+            if (entry != null) {
+                entry.exit();
+            }
+            ContextUtil.exit();
+        }
     }
 }

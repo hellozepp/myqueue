@@ -1,10 +1,5 @@
 package limit.common.bucket;
 
-import com.alibaba.csp.sentinel.Entry;
-import com.alibaba.csp.sentinel.EntryType;
-import com.alibaba.csp.sentinel.SphU;
-import com.alibaba.csp.sentinel.context.ContextUtil;
-import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.google.common.util.concurrent.RateLimiter;
 import limit.common.sentinel.ControlRole;
 
@@ -23,7 +18,7 @@ public class SlidingWindow {
     /**
      * The smallest count window chunk length in bytes
      */
-    private static Long WINDOW_LENGTH = 1024L;
+    public static Long WINDOW_LENGTH = 1024L;
 
     /**
      * How many bytes will be sent or receive
@@ -106,24 +101,6 @@ public class SlidingWindow {
         producerRate.acquire();
     }
 
-    private void doLimitSentinel() {
-        Entry entry = null;
-        try {
-            ContextUtil.enter(controlRole.getKEY());
-            entry = SphU.entry(controlRole.getKEY(), EntryType.OUT);
-
-            // Your business logic here.
-        } catch (BlockException ex) {
-            // Blocked.
-            System.out.printf("[%d] Blocked!\n", System.currentTimeMillis());
-        } finally {
-            if (entry != null) {
-                entry.exit();
-            }
-            ContextUtil.exit();
-        }
-    }
-
     private void doLimitWindow() {
         while (this.ackBytes > WINDOW_LENGTH) {
             long nowTick = System.nanoTime();
@@ -143,6 +120,6 @@ public class SlidingWindow {
     synchronized void limitNextBytes(int len) {
         this.ackBytes += len;
 //        doLimitWindow();
-        doLimitSentinel();
+        ControlRole.doLimitSentinel(controlRole.getKEY());
     }
 }
