@@ -1,9 +1,9 @@
 package sample;
 
-import limit.common.queue.MqConfig;
-import limit.common.queue.MyConsumerRunner;
-import limit.common.queue.MyMessageQueueServer;
-import limit.common.queue.MyProducerRunner;
+import limit.common.bucket.MqConfig;
+import limit.common.bucket.MyConsumerRunner;
+import limit.common.bucket.MyMessageQueueServer;
+import limit.common.bucket.MyProducerRunner;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,11 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @Author: zhanglin
  * @Date: 2019/3/29
  * @Time: 9:13 PM
- * * 数据报限流
- * * 创建队列，生产者生产数据放入队列，消费者消费数据读取队列。
- * * 并且对生产者进行限流，以获得1M/s的数据处理速率。
  */
-public class MqTest {
+public class BucketMqTest {
     public static ThreadFactory threadFactory;
     public static ThreadPoolExecutor threadPoolExecutor;
 
@@ -37,8 +34,8 @@ public class MqTest {
     @Test
     public void serverTest() {
         MyMessageQueueServer myMessageQueueServer = new MyMessageQueueServer();
-        MqTest.threadPoolExecutor.execute(myMessageQueueServer);
-        MqTest.threadPoolExecutor.execute(new Runnable() {
+        BucketMqTest.threadPoolExecutor.execute(myMessageQueueServer);
+        BucketMqTest.threadPoolExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 myMessageQueueServer.take();
@@ -59,11 +56,11 @@ public class MqTest {
 
         FileReader fileReader = null;
         BufferedReader br = null;
+        FileInputStream fileInputStream = null;
         try {
-            fileReader = new FileReader(new File("/Users/docker/Documents/testPack/hello.zepp.mrdemo-1.0-SNAPSHOT-jar-with-dependencies.jar"));
-
-            br = new BufferedReader(fileReader);
-            MyProducerRunner myProducerRunner = new MyProducerRunner(config, br);
+            fileInputStream = new FileInputStream(new File("/Users/docker/Documents/testPack/hello.zepp.mrdemo-1.0-SNAPSHOT-jar-with-dependencies.jar"));
+//            MyProducerRunner myProducerRunner = new MyProducerRunner(config, new BufferedReader(new FileReader(new File("/Users/docker/Documents/testPack/hello.zepp.mrdemo-1.0-SNAPSHOT-jar-with-dependencies.jar"))));
+            MyProducerRunner myProducerRunner = new MyProducerRunner(config, fileInputStream);
             MyConsumerRunner myConsumerRunner = new MyConsumerRunner(config1);
             threadPoolExecutor.execute(myProducerRunner);
             threadPoolExecutor.execute(myConsumerRunner);
@@ -79,11 +76,8 @@ public class MqTest {
             e.printStackTrace();
         } finally {
             try {
-                if (br != null) {
-                    br.close();
-                }
-                if (fileReader != null) {
-                    fileReader.close();
+                if (fileInputStream != null) {
+                    fileInputStream.close();
                 }
             } catch (IOException e) {
                 System.out.println("close IO exception!");
@@ -99,7 +93,7 @@ public class MqTest {
 
         @Override
         public Thread newThread(Runnable r) {
-            Thread t = new Thread(r, "[my-thread-" + mThreadNum.getAndIncrement()+"]");
+            Thread t = new Thread(r, "[my-thread-" + mThreadNum.getAndIncrement() + "]");
             System.out.println(t.getName() + " has been created!");
             return t;
         }

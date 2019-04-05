@@ -1,4 +1,4 @@
-package limit.common;
+package limit.common.queue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,7 +16,7 @@ public class MyProducerRunner implements Runnable{
     private BufferedReader br;
     private final MqConfig config;
     private static final int DEFAULT_SEND_BUF_SIZE = 8192;
-    private static final int DEFAULT_PORT = 19995;
+    private static final int DEFAULT_PORT = 19996;
 
     public MyProducerRunner(MqConfig config, BufferedReader br) {
         this.config = config;

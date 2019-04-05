@@ -1,4 +1,7 @@
-package limit.common;
+package limit.common.queue;
+
+import limit.common.window.SlidingWindow;
+import limit.common.window.TpsLimiterFilter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,7 +70,7 @@ public class MyMessageQueueServer implements Runnable {
                         second += 10;
                         System.out.println("[MyMessageQueueServer] " + new Date() + ",role flag:" + flag + "," +
                                 " receive data length is " + (dataLength += data.length())
-                                + ", time cost:" + timeCost + "s");
+                                + "M, time cost:" + timeCost + "s");
                     }
                 }
                 System.out.println("[MyMessageQueueServer] end ! " + (System.nanoTime() - a) / 1000000000 + "s");

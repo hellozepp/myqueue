@@ -1,4 +1,4 @@
-package limit.common;
+package limit.common.window;
 
 
 import java.io.BufferedReader;
