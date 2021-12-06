@@ -1,8 +1,6 @@
 package limit.common.bucket;
 
 
-import limit.common.sentinel.ControlRole;
-
 import java.io.IOException;
 import java.io.InputStream;
 

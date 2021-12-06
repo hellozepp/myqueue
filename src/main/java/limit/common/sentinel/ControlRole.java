@@ -29,7 +29,7 @@ public class ControlRole {
         rule.setCount(bucketNum);
         rule.setGrade(RuleConstant.FLOW_GRADE_QPS);
         rule.setLimitApp("default");
-
+        //使用匀速排队限流
         rule.setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_RATE_LIMITER);
         rule.setMaxQueueingTimeMs(10 * 1000);
         FlowRuleManager.loadRules(Collections.singletonList(rule));
